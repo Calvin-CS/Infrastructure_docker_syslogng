@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syslogng
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: syslogng
+  template:
+    metadata:
+      annotations:
+        releaseTime: {{ dateInZone "2006-01-02 15:04:05Z" (now) "UTC"| quote }}
+      labels:
+        app: syslogng
+    spec:
+      # Allow non-root user to access PersistentVolume
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: syslogng
+        env:
+        - name: TZ
+          value: {{ .Values.timezone }}
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:{{ default "latest" .Values.image.tag }}
+        ports:
+        - containerPort: 5514
+          protocol: UDP
+        - containerPort: 6601
+          protocol: TCP
+        - containerPort: 6514
+          protocol: TCP
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"  # 0.05 CPU
+          limits:
+            memory: "128Mi"
+            cpu: "250m"  # 0.25 CPU
+        volumeMounts:
+        - mountPath: /config
+          name: mountconfig
+        - mountPath: /var/log
+          name: mountvarlog
+        - mountPath: /custom-services.d/cron
+          name: configmap-cron
+          subPath: cron
+          readOnly: true
+        - mountPath: /etc/periodic/daily/daily-syslog-cleanup.sh
+          name: configmap-daily-syslog-cleanup
+          subPath: daily-syslog-cleanup.sh
+          readOnly: true
+      volumes:
+      - name: mountconfig
+        persistentVolumeClaim:
+          claimName: pvc-syslogng-config
+      - name: mountvarlog
+        persistentVolumeClaim:
+          claimName: pvc-syslogng-varlog
+      - name: configmap-cron
+        configMap:
+          name: syslogng-config
+          defaultMode: 0775
+          items:
+          - key: cron
+            path: cron
+      - name: configmap-daily-syslog-cleanup
+        configMap:
+          name: syslogng-config
+          defaultMode: 0775
+          items:
+          - key: daily-syslog-cleanup
+            path: daily-syslog-cleanup.sh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syslogng
+  namespace: production
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: syslog.{{ .Values.dns.name }}
+    service.beta.kubernetes.io/azure-dns-label-name: syslog
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  #- port: 514
+  #  targetPort: 5514
+  #  name: syslog-udp
+  #  protocol: UDP
+  - port: 601
+    targetPort: 6601
+    name: syslog-tcp
+    protocol: TCP
+  - port: 6514
+    targetPort: 6514
+    name: syslog-tls
+    protocol: TCP
+  selector:
+    app: syslogng

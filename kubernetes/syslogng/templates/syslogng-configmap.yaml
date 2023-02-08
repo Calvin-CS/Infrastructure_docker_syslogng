@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: syslogng-config
+data:
+  cron: |
+    #!/usr/bin/with-contenv bash
+    /usr/sbin/crond -f -S -l 0 -c /etc/crontabs
+  daily-syslog-cleanup: |
+    #!/usr/bin/with-contenv bash
+    /usr/bin/find /var/log -type f -name messages* -mtime +30 -delete
