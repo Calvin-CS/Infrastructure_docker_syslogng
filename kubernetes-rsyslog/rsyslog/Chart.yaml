@@ -1,0 +1,4 @@
+apiVersion: v2
+name: rsyslog
+description: A Helm chart for Kubernetes deployment of rsyslog
+version: 0.1.0

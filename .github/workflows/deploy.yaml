@@ -1,4 +1,4 @@
-name: Deploy the latest build for syslog-ng
+name: Deploy the latest build for syslog
 
 on:
   push:
@@ -34,5 +34,5 @@ jobs:
             --atomic \
             --wait \
             --namespace production \
-            syslogng \
-           ./kubernetes/syslogng \
+            rsyslog \
+           ./kubernetes/rsyslog \
