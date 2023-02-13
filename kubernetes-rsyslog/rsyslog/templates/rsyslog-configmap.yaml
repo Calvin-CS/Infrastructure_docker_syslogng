@@ -31,3 +31,6 @@ data:
   daily-syslog-cleanup: |
     #!/usr/bin/with-contenv bash
     /usr/bin/find /var/log -type f -name messages* -mtime +30 -delete
+  daily-syslog-compress-old: |
+    #!/usr/bin/with-contenv bash
+    /usr/bin/find /var/log -type f -name messages* ! -name 'messages*.gz' -mtime +2 -exec gzip {} \;

@@ -65,6 +65,10 @@ spec:
           name: configmap-daily-syslog-cleanup
           subPath: daily-syslog-cleanup.sh
           readOnly: true
+        - mountPath: /etc/periodic/daily/daily-syslog-compress-old.sh
+          name: configmap-daily-syslog-compress-old
+          subPath: daily-syslog-compress-old.sh
+          readOnly: true
       volumes:
       - name: mountwork
         persistentVolumeClaim:
@@ -93,6 +97,13 @@ spec:
           items:
           - key: daily-syslog-cleanup
             path: daily-syslog-cleanup.sh
+      - name: configmap-daily-syslog-compress-old
+        configMap:
+          name: rsyslog-config
+          defaultMode: 0775
+          items:
+          - key: daily-syslog-compress-old
+            path: daily-syslog-compress-old.sh
       - name: configmap-rsyslog-config
         configMap:
           name: rsyslog-config
