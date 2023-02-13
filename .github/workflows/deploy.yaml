@@ -35,4 +35,4 @@ jobs:
             --wait \
             --namespace production \
             rsyslog \
-           ./kubernetes/rsyslog \
+           ./kubernetes-rsyslog/rsyslog \
