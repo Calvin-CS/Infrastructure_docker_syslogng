@@ -10,9 +10,10 @@ Couple of extra setup steps here:
 
 AKS_MC_RG=$(az aks show -g CS_Infrastructure_AKS --name Infrastructure --query nodeResourceGroup -o tsv)
 
-To confirm: az network private-link-service list -g $AKS_MC_RG --query "[].{Name:name,Alias:alias}" -o table
+To confirm: az network private-link-service list -g $AKS_MC_RG --query "[].{Name:name,Alias:alias,Tag:tag}" -o table
 
-AKS_PLS_ID=$(az network private-link-service list -g $AKS_MC_RG --query "[].id" -o tsv)
+# OLD : AKS_PLS_ID=$(az network private-link-service list -g $AKS_MC_RG --query "[].id" -o tsv)
+az network private-link-service list -g $AKS_MC_RG --query "[].{Id:id, Owner:tags.\"k8s-azure-owner-service\"} | [?contains(Owner,'syslog')]".Id -o tsv
 
 az network private-endpoint create -g CS_Infrastructure_USNorthCentral --name aksSyslogPE --vnet-name Subnet_CS_Cloud_USNorthCentral --subnet Server_AKS_syslog --private-connection-resource-id $AKS_PLS_ID --connection-name connectToAKSSyslog
 
