@@ -1,4 +1,0 @@
-apiVersion: v2
-name: syslogng
-description: A Helm chart for Kubernetes deployment of syslogng
-version: 0.1.0
