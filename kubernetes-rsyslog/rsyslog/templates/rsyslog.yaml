@@ -15,6 +15,8 @@ spec:
       labels:
         app: rsyslog
     spec:
+      nodeSelector:
+        CSInfrastructure: "true"
       # Allow non-root user to access PersistentVolume
       securityContext:
         fsGroup: 1000
@@ -129,7 +131,8 @@ metadata:
     service.beta.kubernetes.io/azure-dns-label-name: rsyslog-int
     service.beta.kubernetes.io/azure-load-balancer-internal: "true"
     service.beta.kubernetes.io/azure-pls-create: "true"
-    service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "Server_AKS_syslog"
+    # service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "Server_AKS_syslog"
+    # service.beta.kubernetes.io/azure-load-balancer-ipv4: 10.230.64.29
 spec:
   type: LoadBalancer
   ports:
