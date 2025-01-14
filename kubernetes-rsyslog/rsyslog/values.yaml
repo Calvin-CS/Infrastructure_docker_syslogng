@@ -3,7 +3,7 @@ image:
   registry: registry-1.docker.io
   tag: 3.17
 dns:
-  name: k8s.cs.calvin.edu
+  name: cs.calvin.edu
 timezone: America/Detroit
 puid: 1000
 pgid: 1000

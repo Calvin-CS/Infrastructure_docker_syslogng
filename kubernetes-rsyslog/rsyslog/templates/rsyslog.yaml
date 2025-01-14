@@ -120,6 +120,28 @@ spec:
           items:
           - key: rsyslog-install
             path: install-rsyslog.sh
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: rsyslog
+#   namespace: production
+#   annotations:
+#     external-dns.alpha.kubernetes.io/hostname: rsyslog-int.{{ .Values.dns.name }}
+#     service.beta.kubernetes.io/azure-dns-label-name: rsyslog-int
+#     service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+#     service.beta.kubernetes.io/azure-pls-create: "true"
+#     # service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "Server_AKS_syslog"
+#     # service.beta.kubernetes.io/azure-load-balancer-ipv4: 10.230.64.29
+# spec:
+#   type: LoadBalancer
+#   ports:
+#   - port: 601
+#     targetPort: 6601
+#     name: rsyslog-tcp
+#     protocol: TCP
+#   selector:
+#     app: rsyslog
 ---
 apiVersion: v1
 kind: Service
@@ -127,12 +149,8 @@ metadata:
   name: rsyslog
   namespace: production
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: rsyslog-int.{{ .Values.dns.name }}
-    service.beta.kubernetes.io/azure-dns-label-name: rsyslog-int
-    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-    service.beta.kubernetes.io/azure-pls-create: "true"
-    # service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "Server_AKS_syslog"
-    # service.beta.kubernetes.io/azure-load-balancer-ipv4: 10.230.64.29
+    external-dns.alpha.kubernetes.io/hostname: syslog{{- if ne .Release.Namespace "production" }}-{{ default "staging" .Release.Namespace }}{{- end }}.{{ .Values.dns.name }}
+    service.beta.kubernetes.io/azure-dns-label-name: calvincs-syslog{{- if ne .Release.Namespace "production" }}-{{ default "staging" .Release.Namespace }}{{- end }}
 spec:
   type: LoadBalancer
   ports:
